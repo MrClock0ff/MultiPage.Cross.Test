@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0-ios</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>true</ImplicitUsings>
+		<SupportedOSPlatformVersion>12.0</SupportedOSPlatformVersion>
+		<RootNamespace>MultiPage.Cross.Test</RootNamespace>
+	</PropertyGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\MultiPage.Cross.Test\MultiPage.Cross.Test.csproj" />
+	</ItemGroup>
+</Project>
