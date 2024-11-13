@@ -17,6 +17,8 @@ public class SomeItemDataSource : UIPageViewControllerDataSource, IUIPageViewCon
 		_someItemChunks = someItemChunks ?? [];
 	}
 
+	public UIViewController? CurrentViewController => GetCurrentViewController();
+
 	public override UIViewController GetNextViewController(UIPageViewController pageViewController,
 		UIViewController referenceViewController)
 	{
@@ -37,5 +39,15 @@ public class SomeItemDataSource : UIPageViewControllerDataSource, IUIPageViewCon
 	public override nint GetPresentationIndex(UIPageViewController pageViewController)
 	{
 		return _currentIndex;
+	}
+
+	private UIViewController? GetCurrentViewController()
+	{
+		if (_someItemChunks.Count == 0)
+		{
+			return null;
+		}
+
+		return new UIViewController();
 	}
 }

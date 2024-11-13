@@ -52,12 +52,26 @@ public class RootViewController : UIViewController
 
 	private async void RefreshButton_OnTouchUpInside(object? sender, EventArgs e)
 	{
-		if (_pageViewController != null)
+		if (_pageViewController == null)
 		{
-			IEnumerable<SomeItem> someItems = await _service.GetSomeItemsAsync();
-			SomeItemDataSource dataSource = new SomeItemDataSource(someItems);
-			_pageViewController.WeakDataSource = dataSource;
-			_pageViewController.WeakDelegate = dataSource;
+			return;
 		}
+		
+		IEnumerable<SomeItem> someItems = await _service.GetSomeItemsAsync();
+		
+		List<List<SomeItem>>? someItemChunks = null;
+		
+		if (someItems.TrySlice(6, out IEnumerable<IEnumerable<SomeItem>>? chunks))
+		{
+			someItemChunks = chunks?.Select(e => e.ToList()).ToList();
+		}
+
+		if (someItemChunks?.Count <= 0)
+		{
+			return;
+		}
+
+		SomeItemsViewController viewController = new SomeItemsViewController(someItemChunks![0]);
+		await _pageViewController.SetViewControllersAsync([viewController], UIPageViewControllerNavigationDirection.Forward, true);
 	}
 }
