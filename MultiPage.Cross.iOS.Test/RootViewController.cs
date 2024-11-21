@@ -54,28 +54,14 @@ public class RootViewController : UIViewController
 		});
 		
 		IEnumerable<SomeItem> someItems = await _service.GetSomeItemsAsync();
-		
-		List<List<SomeItem>>? someItemChunks = null;
-		
-		if (someItems.TrySlice(6, out IEnumerable<IEnumerable<SomeItem>>? chunks))
-		{
-			someItemChunks = chunks?.Select(e => e.ToList()).ToList();
-		}
-
-		if (someItemChunks?.Count <= 0)
-		{
-			return;
-		}
-
-		List<SomeItemsViewController> viewControllers = someItemChunks.Select(chunk => new SomeItemsViewController(chunk)).ToList();
-		_dataSource = new DataSource(viewControllers);
+		_dataSource = new DataSource(someItems);
 		_ = NextPage();
 	}
 
 	private Task NextPage()
 	{
 		UIViewController next = _dataSource.GetNextViewController();
-		return _pageViewController.SetViewControllersAsync(new [] { next }, UIPageViewControllerNavigationDirection.Forward, true);
+		return _pageViewController.SetViewControllersAsync(new [] { next }, UIPageViewControllerNavigationDirection.Forward, false);
 	}
 
 	private void RefreshButton_OnTouchUpInside(object? sender, EventArgs e)
@@ -85,42 +71,52 @@ public class RootViewController : UIViewController
 	
 	private class DataSource
 	{
-		private List<UIViewController> _controllers;
-		private UIViewController? _current;
+		private readonly List<List<SomeItem>> _chunks;
+		private int _currentPage;
 		
-		public DataSource(IEnumerable<UIViewController> viewControllers)
+		public DataSource(IEnumerable<SomeItem> items)
 		{
-			_controllers = viewControllers.ToList() ?? new List<UIViewController>();
+			_currentPage = -1;
+			
+			List<List<SomeItem>>? someItemChunks = null;
+		
+			if (items.TrySlice(6, out IEnumerable<IEnumerable<SomeItem>>? chunks))
+			{
+				someItemChunks = chunks?.Select(e => e.ToList()).ToList();
+			}
+
+			_chunks = someItemChunks ?? new List<List<SomeItem>>();
 		}
 
 		public UIViewController GetNextViewController()
 		{
-			if (_current == null)
+			if (!_chunks.Any())
 			{
-				return _current = _controllers[0];
+				return new UIViewController();
 			}
 			
-			int currentIndex = _controllers.IndexOf(_current);
-
-			if (currentIndex < 0)
+			if (_currentPage < 0)
 			{
-				return _current = null;
+				_currentPage = 0;
+				return new SomeItemsViewController(_chunks[_currentPage]);
 			}
 			
-			int nextIndex = currentIndex + 1;
-			int total = _controllers.Count;
+			int nextIndex = _currentPage + 1;
+			int total = _chunks.Count;
 
 			if (nextIndex == total)
 			{
-				return _current = _controllers.FirstOrDefault();
+				_currentPage = 0;
+				return new SomeItemsViewController(_chunks[_currentPage]);
 			}
 
 			if (total < nextIndex)
 			{
-				return _current = null;
+				return new UIViewController();
 			}
 			
-			return _current = _controllers[nextIndex];
+			_currentPage = nextIndex;
+			return new SomeItemsViewController(_chunks[_currentPage]);
 		}
 	}
 }
