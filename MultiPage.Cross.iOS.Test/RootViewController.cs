@@ -5,6 +5,7 @@ namespace MultiPage.Cross.Test;
 public class RootViewController : UIViewController
 {
 	private readonly SomeItemService _service;
+	private DataSource _dataSource;
 	private UIPageViewController? _pageViewController;
 
 	public RootViewController()
@@ -12,7 +13,7 @@ public class RootViewController : UIViewController
 		_service = new SomeItemService();
 	}
 
-	public override void ViewDidLoad()
+	public override async void ViewDidLoad()
 	{
 		base.ViewDidLoad();
 
@@ -39,7 +40,7 @@ public class RootViewController : UIViewController
 		});
 		
 		UIButton refreshButton = new UIButton(UIButtonType.System);
-		refreshButton.SetTitle("Refresh", UIControlState.Normal);
+		refreshButton.SetTitle("Next", UIControlState.Normal);
 		refreshButton.TintColor = UIColor.White;
 		refreshButton.TranslatesAutoresizingMaskIntoConstraints = false;
 		refreshButton.TouchUpInside += RefreshButton_OnTouchUpInside;
@@ -51,14 +52,6 @@ public class RootViewController : UIViewController
 			refreshButton.LeadingAnchor.ConstraintEqualTo(View.SafeAreaLayoutGuide.LeadingAnchor, 20.0f),
 			View.SafeAreaLayoutGuide.BottomAnchor.ConstraintEqualTo(refreshButton.BottomAnchor, 20.0f),
 		});
-	}
-
-	private async void RefreshButton_OnTouchUpInside(object? sender, EventArgs e)
-	{
-		if (_pageViewController == null)
-		{
-			return;
-		}
 		
 		IEnumerable<SomeItem> someItems = await _service.GetSomeItemsAsync();
 		
@@ -75,54 +68,43 @@ public class RootViewController : UIViewController
 		}
 
 		List<SomeItemsViewController> viewControllers = someItemChunks.Select(chunk => new SomeItemsViewController(chunk)).ToList();
-		DataSource dataSource = new DataSource(viewControllers);
-		_pageViewController.DataSource = dataSource;
-		await _pageViewController.SetViewControllersAsync(new [] {viewControllers[0]}, UIPageViewControllerNavigationDirection.Forward, true);
+		_dataSource = new DataSource(viewControllers);
+		_ = NextPage();
+	}
+
+	private Task NextPage()
+	{
+		UIViewController next = _dataSource.GetNextViewController();
+		return _pageViewController.SetViewControllersAsync(new [] { next }, UIPageViewControllerNavigationDirection.Forward, true);
+	}
+
+	private void RefreshButton_OnTouchUpInside(object? sender, EventArgs e)
+	{
+		_ = NextPage();
 	}
 	
-	private class DataSource : NSObject, IUIPageViewControllerDataSource
+	private class DataSource
 	{
 		private List<UIViewController> _controllers;
+		private UIViewController? _current;
+		
 		public DataSource(IEnumerable<UIViewController> viewControllers)
 		{
 			_controllers = viewControllers.ToList() ?? new List<UIViewController>();
 		}
 
-		[Export("pageViewController:viewControllerBeforeViewController:")]
-		public UIViewController GetPreviousViewController(UIPageViewController pageViewController,
-			UIViewController referenceViewController)
+		public UIViewController GetNextViewController()
 		{
-			int currentIndex = _controllers.IndexOf(referenceViewController);
-			
-			if (currentIndex < 0)
+			if (_current == null)
 			{
-				return null;
+				return _current = _controllers[0];
 			}
 			
-			int prevIndex = currentIndex - 1;
-
-			if (prevIndex < 0)
-			{
-				return _controllers.LastOrDefault();
-			}
-
-			if (_controllers.Count < prevIndex)
-			{
-				return null;
-			}
-			
-			return _controllers[prevIndex];
-		}
-
-		[Export("pageViewController:viewControllerAfterViewController:")]
-		public UIViewController GetNextViewController(UIPageViewController pageViewController,
-			UIViewController referenceViewController)
-		{
-			int currentIndex = _controllers.IndexOf(referenceViewController);
+			int currentIndex = _controllers.IndexOf(_current);
 
 			if (currentIndex < 0)
 			{
-				return null;
+				return _current = null;
 			}
 			
 			int nextIndex = currentIndex + 1;
@@ -130,15 +112,15 @@ public class RootViewController : UIViewController
 
 			if (nextIndex == total)
 			{
-				return _controllers.FirstOrDefault();
+				return _current = _controllers.FirstOrDefault();
 			}
 
 			if (total < nextIndex)
 			{
-				return null;
+				return _current = null;
 			}
 			
-			return _controllers[nextIndex];
+			return _current = _controllers[nextIndex];
 		}
 	}
 }
