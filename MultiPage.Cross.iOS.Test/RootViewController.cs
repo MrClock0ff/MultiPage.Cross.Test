@@ -1,3 +1,5 @@
+using CoreFoundation;
+
 namespace MultiPage.Cross.Test;
 
 public class RootViewController : UIViewController
@@ -20,6 +22,7 @@ public class RootViewController : UIViewController
 			new UIPageViewController(UIPageViewControllerTransitionStyle.Scroll,
 			UIPageViewControllerNavigationOrientation.Horizontal);
 		
+		pageViewController.View!.BackgroundColor = UIColor.Orange;
 		pageViewController.WillMoveToParentViewController(this);
 		View!.AddSubview(pageViewController.View!);
 		AddChildViewController(pageViewController);
@@ -71,7 +74,71 @@ public class RootViewController : UIViewController
 			return;
 		}
 
-		SomeItemsViewController viewController = new SomeItemsViewController(someItemChunks![0]);
-		await _pageViewController.SetViewControllersAsync([viewController], UIPageViewControllerNavigationDirection.Forward, true);
+		List<SomeItemsViewController> viewControllers = someItemChunks.Select(chunk => new SomeItemsViewController(chunk)).ToList();
+		DataSource dataSource = new DataSource(viewControllers);
+		_pageViewController.DataSource = dataSource;
+		await _pageViewController.SetViewControllersAsync(new [] {viewControllers[0]}, UIPageViewControllerNavigationDirection.Forward, true);
+	}
+	
+	private class DataSource : NSObject, IUIPageViewControllerDataSource
+	{
+		private List<UIViewController> _controllers;
+		public DataSource(IEnumerable<UIViewController> viewControllers)
+		{
+			_controllers = viewControllers.ToList() ?? new List<UIViewController>();
+		}
+
+		[Export("pageViewController:viewControllerBeforeViewController:")]
+		public UIViewController GetPreviousViewController(UIPageViewController pageViewController,
+			UIViewController referenceViewController)
+		{
+			int currentIndex = _controllers.IndexOf(referenceViewController);
+			
+			if (currentIndex < 0)
+			{
+				return null;
+			}
+			
+			int prevIndex = currentIndex - 1;
+
+			if (prevIndex < 0)
+			{
+				return _controllers.LastOrDefault();
+			}
+
+			if (_controllers.Count < prevIndex)
+			{
+				return null;
+			}
+			
+			return _controllers[prevIndex];
+		}
+
+		[Export("pageViewController:viewControllerAfterViewController:")]
+		public UIViewController GetNextViewController(UIPageViewController pageViewController,
+			UIViewController referenceViewController)
+		{
+			int currentIndex = _controllers.IndexOf(referenceViewController);
+
+			if (currentIndex < 0)
+			{
+				return null;
+			}
+			
+			int nextIndex = currentIndex + 1;
+			int total = _controllers.Count;
+
+			if (nextIndex == total)
+			{
+				return _controllers.FirstOrDefault();
+			}
+
+			if (total < nextIndex)
+			{
+				return null;
+			}
+			
+			return _controllers[nextIndex];
+		}
 	}
 }
