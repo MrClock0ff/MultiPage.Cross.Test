@@ -49,9 +49,9 @@ public class SomeItemsGridFragment : Fragment
 		return viewGroup;
 	}
 
-	public override void OnResume()
+	public override void OnViewCreated(View view, Bundle? savedInstanceState)
 	{
-		base.OnResume();
+		base.OnViewCreated(view, savedInstanceState);
 		ReloadGridLayout(Arguments);
 	}
 
