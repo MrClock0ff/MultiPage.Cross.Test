@@ -30,18 +30,16 @@ public class SomeItemsFragmentDialog : DialogFragment
 
 	public override View? OnCreateView(LayoutInflater inflater, ViewGroup? container, Bundle? savedInstanceState)
 	{
-		float maxWidth = Resources.DisplayMetrics?.WidthPixels ?? 1.0f;
-		int innerContainerWidth = (int)(maxWidth * 0.7f);
 		LinearLayout innerContainer = new LinearLayout(Context)
 		{
-			LayoutParameters = new ViewGroup.LayoutParams(innerContainerWidth, ViewGroup.LayoutParams.WrapContent),
+			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
 			Background = new ColorDrawable(Color.Black),
 			Orientation = Orientation.Vertical
 		};
 
 		ViewPager2 viewPager2 = _viewPager = new ViewPager2(Context!)
 		{
-			LayoutParameters = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.WrapContent),
+			LayoutParameters = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
 			Adapter = new SomeItemsPageAdapter(this, _dataSource)
 		};
 
@@ -56,7 +54,10 @@ public class SomeItemsFragmentDialog : DialogFragment
 
 		innerContainer.AddView(refreshButton);
 
-		RelativeLayout outerContainer = new RelativeLayout(Context);
+		RelativeLayout outerContainer = new RelativeLayout(Context)
+		{
+			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
+		};
 		outerContainer.AddView(innerContainer);
 		return outerContainer;
 	}

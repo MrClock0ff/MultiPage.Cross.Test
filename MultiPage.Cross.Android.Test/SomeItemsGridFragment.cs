@@ -45,7 +45,7 @@ public class SomeItemsGridFragment : Fragment
 		gridLayout.SetPadding(gridPadding, gridPadding, gridPadding, gridPadding);
 
 		FrameLayout viewGroup = new FrameLayout(Context);
-		viewGroup.AddView(gridLayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.WrapContent));
+		viewGroup.AddView(gridLayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
 		return viewGroup;
 	}
 
