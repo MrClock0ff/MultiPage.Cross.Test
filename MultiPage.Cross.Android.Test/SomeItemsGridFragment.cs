@@ -74,22 +74,36 @@ public class SomeItemsGridFragment : Fragment
 		
 		SizeF cellSize = layoutManager.GetCellSize();
 		List<SomeItem> items = GetItemsFromBundle(bundle);
+		List<List<FrameLayout>> viewHolders = new List<List<FrameLayout>>();
+
+		for (int row = 0; row < gridSize.Height; row++)
+		{
+			List<FrameLayout> rowViewHolders = new List<FrameLayout>();
+			viewHolders.Add(rowViewHolders);
+			
+			for (int col = 0; col < gridSize.Width; col++)
+			{
+				FrameLayout viewHolder = new FrameLayout(Context);
+				GridLayout.LayoutParams viewHolderLayoutParams = new GridLayout.LayoutParams(new ViewGroup.LayoutParams((int)cellSize.Width, (int)cellSize.Height));
+				viewHolderLayoutParams.RowSpec = GridLayout.InvokeSpec(row, GridLayout.CenterAlignment);
+				viewHolderLayoutParams.ColumnSpec = GridLayout.InvokeSpec(col, GridLayout.CenterAlignment);
+				gridLayout.AddView(viewHolder, viewHolderLayoutParams);
+				rowViewHolders.Add(viewHolder);
+			}
+		}
 
 		for(int itemIndex = 0; itemIndex < items.Count; itemIndex++)
 		{
 			SomeItem item = items[itemIndex];
 			ImageButton button = new ImageButton(Context)
 			{
-				Background = new ColorDrawable(_cellColors[itemIndex])
+				Background = new ColorDrawable(_cellColors[itemIndex]),
+				LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent),
 			};
 			button.Click += (s, e) => Debug.WriteLine(item.Text);
 
 			Point cellPosition = layoutManager.GetItemPosition(itemIndex);
-			GridLayout.LayoutParams buttonLayoutParams = new GridLayout.LayoutParams(new ViewGroup.LayoutParams((int)cellSize.Width, (int)cellSize.Height));
-			buttonLayoutParams.RowSpec = GridLayout.InvokeSpec(cellPosition.Y, GridLayout.CenterAlignment);
-			buttonLayoutParams.ColumnSpec = GridLayout.InvokeSpec(cellPosition.X, GridLayout.CenterAlignment);
-
-			gridLayout.AddView(button, buttonLayoutParams);
+			viewHolders[cellPosition.Y][cellPosition.X].AddView(button);
 		}
 	}
 
