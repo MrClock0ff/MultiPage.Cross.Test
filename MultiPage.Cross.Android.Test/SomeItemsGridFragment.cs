@@ -36,16 +36,21 @@ public class SomeItemsGridFragment : Fragment
 
 	public override View? OnCreateView(LayoutInflater inflater, ViewGroup? container, Bundle? savedInstanceState)
 	{
+		int gridPadding = (int)GetDefaultGridPaddingPx();
+		ViewGroup.MarginLayoutParams gridLayoutParams =
+			new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent);
+		gridLayoutParams.SetMargins(gridPadding, gridPadding, gridPadding, gridPadding);
 		GridLayout gridLayout = new GridLayout(Context)
 		{
-			Orientation = GridLayout.Vertical
+			Orientation = GridLayout.Vertical,
+			LayoutParameters = gridLayoutParams,
 		};
-		
-		int gridPadding = (int)GetDefaultGridPaddingPx();
-		gridLayout.SetPadding(gridPadding, gridPadding, gridPadding, gridPadding);
 
-		FrameLayout viewGroup = new FrameLayout(Context);
-		viewGroup.AddView(gridLayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent));
+		FrameLayout viewGroup = new FrameLayout(Context)
+		{
+			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
+		};
+		viewGroup.AddView(gridLayout);
 		return viewGroup;
 	}
 

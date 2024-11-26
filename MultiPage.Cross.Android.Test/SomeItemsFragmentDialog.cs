@@ -2,7 +2,6 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Runtime;
 using Android.Views;
-using AndroidX.ViewPager2.Adapter;
 using AndroidX.ViewPager2.Widget;
 using MultiPage.Cross.Test;
 using DialogFragment = AndroidX.Fragment.App.DialogFragment;
@@ -25,14 +24,13 @@ public class SomeItemsFragmentDialog : DialogFragment
 	public override void OnCreate(Bundle? savedInstanceState)
 	{
 		base.OnCreate(savedInstanceState);
-		SetStyle(StyleNoTitle, Theme);
+		SetStyle(StyleNoTitle, global::Android.Resource.Style.ThemeBlackNoTitleBarFullScreen);
 	}
 
 	public override View? OnCreateView(LayoutInflater inflater, ViewGroup? container, Bundle? savedInstanceState)
 	{
 		LinearLayout innerContainer = new LinearLayout(Context)
 		{
-			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
 			Background = new ColorDrawable(Color.Black),
 			Orientation = Orientation.Vertical
 		};
@@ -40,7 +38,6 @@ public class SomeItemsFragmentDialog : DialogFragment
 		ViewPager2 viewPager2 = _viewPager = new ViewPager2(Context!)
 		{
 			LayoutParameters = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
-			Adapter = new SomeItemsPageAdapter(this, _dataSource)
 		};
 
 		innerContainer.AddView(viewPager2);
@@ -56,9 +53,12 @@ public class SomeItemsFragmentDialog : DialogFragment
 
 		RelativeLayout outerContainer = new RelativeLayout(Context)
 		{
-			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
+			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent),
 		};
-		outerContainer.AddView(innerContainer);
+		RelativeLayout.LayoutParams innerContainerLayoutParams =
+			new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent);
+		innerContainerLayoutParams.AddRule(LayoutRules.CenterInParent);
+		outerContainer.AddView(innerContainer, innerContainerLayoutParams);
 		return outerContainer;
 	}
 
