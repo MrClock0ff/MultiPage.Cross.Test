@@ -23,7 +23,7 @@ public class RootViewController : UIViewController
 			new UIPageViewController(UIPageViewControllerTransitionStyle.Scroll,
 			UIPageViewControllerNavigationOrientation.Horizontal);
 		
-		pageViewController.View!.BackgroundColor = UIColor.Orange;
+		//pageViewController.View!.BackgroundColor = UIColor.Orange;
 		pageViewController.WillMoveToParentViewController(this);
 		View!.AddSubview(pageViewController.View!);
 		AddChildViewController(pageViewController);
@@ -80,7 +80,7 @@ public class RootViewController : UIViewController
 			
 			List<List<SomeItem>>? someItemChunks = null;
 		
-			if (items.TrySlice(6, out IEnumerable<IEnumerable<SomeItem>>? chunks))
+			if (items.Take(1).TrySlice(6, out IEnumerable<IEnumerable<SomeItem>>? chunks))
 			{
 				someItemChunks = chunks?.Select(e => e.ToList()).ToList();
 			}
@@ -98,7 +98,7 @@ public class RootViewController : UIViewController
 			if (_currentPage < 0)
 			{
 				_currentPage = 0;
-				return new SomeItemsViewController(_chunks[_currentPage]);
+				return new SomeItemsViewController2(_chunks[_currentPage]);
 			}
 			
 			int nextIndex = _currentPage + 1;
@@ -107,7 +107,7 @@ public class RootViewController : UIViewController
 			if (nextIndex == total)
 			{
 				_currentPage = 0;
-				return new SomeItemsViewController(_chunks[_currentPage]);
+				return new SomeItemsViewController2(_chunks[_currentPage]);
 			}
 
 			if (total < nextIndex)
@@ -116,7 +116,7 @@ public class RootViewController : UIViewController
 			}
 			
 			_currentPage = nextIndex;
-			return new SomeItemsViewController(_chunks[_currentPage]);
+			return new SomeItemsViewController2(_chunks[_currentPage]);
 		}
 	}
 }
