@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Diagnostics;
 using System.Drawing;
 using Android.Graphics.Drawables;
@@ -51,27 +50,16 @@ public class SomeItemsGridFragment : Fragment
 			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
 		};
 		viewGroup.AddView(gridLayout);
+
+		ReloadGridLayout(gridLayout, Arguments);
+
 		return viewGroup;
 	}
 
-	public override void OnViewCreated(View view, Bundle? savedInstanceState)
+	private void ReloadGridLayout(GridLayout gridLayout, Bundle? bundle)
 	{
-		base.OnViewCreated(view, savedInstanceState);
-		ReloadGridLayout(Arguments);
-	}
-
-	private void ReloadGridLayout(Bundle? bundle)
-	{
-		ViewGroup? viewGroup = View as ViewGroup;
-		GridLayout? gridLayout = viewGroup?.GetChildAt(0) as GridLayout;
-
-		if (gridLayout == null)
-		{
-			return;
-		}
-
 		gridLayout.RemoveAllViews();
-
+		
 		GridLayoutManager layoutManager = new GridLayoutManager(GetLayoutMaxSize());
 		Size gridSize = layoutManager.GetGridSize();
 		gridLayout.ColumnCount = gridSize.Width;
