@@ -43,11 +43,13 @@ public class SomeItemsGridFragment : Fragment
 		{
 			Orientation = GridLayout.Vertical,
 			LayoutParameters = gridLayoutParams,
+			Background = new ColorDrawable(Color.Beige)
 		};
 
 		FrameLayout viewGroup = new FrameLayout(Context)
 		{
 			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
+			Background = new ColorDrawable(Color.Aqua)
 		};
 		viewGroup.AddView(gridLayout);
 
@@ -76,8 +78,10 @@ public class SomeItemsGridFragment : Fragment
 			
 			for (int col = 0; col < gridSize.Width; col++)
 			{
+				Rectangle viewHolderSpacing = GetCellSpacing(new Point(col, row), gridSize);
 				FrameLayout viewHolder = new FrameLayout(Context);
 				GridLayout.LayoutParams viewHolderLayoutParams = new GridLayout.LayoutParams(new ViewGroup.LayoutParams((int)cellSize.Width, (int)cellSize.Height));
+				viewHolderLayoutParams.SetMargins(viewHolderSpacing.X, viewHolderSpacing.Y, viewHolderSpacing.Width, viewHolderSpacing.Height);
 				viewHolderLayoutParams.RowSpec = GridLayout.InvokeSpec(row, GridLayout.CenterAlignment);
 				viewHolderLayoutParams.ColumnSpec = GridLayout.InvokeSpec(col, GridLayout.CenterAlignment);
 				gridLayout.AddView(viewHolder, viewHolderLayoutParams);
@@ -98,6 +102,20 @@ public class SomeItemsGridFragment : Fragment
 			Point cellPosition = layoutManager.GetItemPosition(itemIndex);
 			viewHolders[cellPosition.Y][cellPosition.X].AddView(button);
 		}
+	}
+
+	public Rectangle GetCellSpacing(Point cellIndex, Size gridSize)
+	{
+		int spacing = (int)GetDefaultGridPaddingPx();
+		// Top row has no spacing at the top
+		int top = cellIndex.Y == 0 ? 0 : spacing;
+		// Bottom row has no spacing at the bottom
+		int bottom = cellIndex.Y == gridSize.Height - 1 ? 0 : spacing;
+		// Left column has no left spacing
+		int left = cellIndex.X == 0 ? 0 : spacing;
+		// Right column has no right spacing
+		int right = cellIndex.X == gridSize.Width - 1 ? 0 : spacing;
+		return new Rectangle(left, top, right, bottom);
 	}
 
 	private SizeF GetLayoutMaxSize()

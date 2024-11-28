@@ -35,13 +35,14 @@ public class SomeItemsFragmentDialog : DialogFragment
 
 		LinearLayout innerContainer = new LinearLayout(Context)
 		{
-			Background = new ColorDrawable(Color.Black),
+			Background = new ColorDrawable(Color.Yellow),
 			Orientation = Orientation.Vertical
 		};
 
 		ViewPager2 viewPager2 = _viewPager = new ViewPager2(Context!)
 		{
 			LayoutParameters = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent),
+			Background = new ColorDrawable(Color.White)
 		};
 		
 		viewPager2.RegisterOnPageChangeCallback(new InternalOnPageChangeCallback(() => viewPager2.Post(ResizeViewPager)));
@@ -58,6 +59,7 @@ public class SomeItemsFragmentDialog : DialogFragment
 
 		RelativeLayout outerContainer = new RelativeLayout(Context)
 		{
+			Background = new ColorDrawable(Color.Red),
 			LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent),
 		};
 		RelativeLayout.LayoutParams innerContainerLayoutParams =
